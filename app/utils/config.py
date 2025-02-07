@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     FIREBASE_PRIVATE_KEY: str = os.getenv("FIREBASE_PRIVATE_KEY").replace('\\n', '\n')  # Key 값 처리
     FIREBASE_CLIENT_EMAIL: str = os.getenv("FIREBASE_CLIENT_EMAIL")
     FIREBASE_CLIENT_ID: str = os.getenv("FIREBASE_CLIENT_ID")
+    FIREBASE_CREDENTIALS: str = os.getenv("FIREBASE_CREDENTIALS")
 
     # Supabase 설정
     USER = os.getenv("user")
@@ -30,8 +31,6 @@ class Settings(BaseSettings):
     DATABASE_URL: str = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
     SUPABASE_KEY: str = os.getenv("SUPABASE_KEY")
 
-    
-     
     # JWT 설정
     JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "your_secret_key")
     JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")

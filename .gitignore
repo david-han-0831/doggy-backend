@@ -3,3 +3,5 @@ __pycache__/
 .env
 .DS_Store
 .cursorrules
+
+firebase_service_account.json

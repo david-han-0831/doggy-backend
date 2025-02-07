@@ -1,14 +1,17 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import os
 from dotenv import load_dotenv
 from app.utils.config import settings  # 설정 불러오기
+from sqlalchemy.ext.declarative import declarative_base
+
 
 # Load environment variables from .env
 load_dotenv()
 
 # Construct the SQLAlchemy connection string
 DATABASE_URL = settings.DATABASE_URL
+
+Base = declarative_base()
 
 # SQLAlchemy 엔진 생성 (Transaction Pooler 사용 시, Pooling 해제)
 engine = create_engine(DATABASE_URL, pool_pre_ping=True, echo=True)

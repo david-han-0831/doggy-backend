@@ -4,6 +4,11 @@ from app.utils.config import settings
 from app.db.database import engine  # database.py에서 생성한 engine을 가져옴
 from app.routers.auth import router as auth_router  # 🔹 인증 관련 API 추가
 
+# 미들웨어 추가
+from app.middleware.logging import LoggingMiddleware
+from app.middleware.auth import AuthMiddleware
+
+
 import os
 
 # FastAPI 애플리케이션 초기화
@@ -12,6 +17,11 @@ app = FastAPI(
     version=settings.APP_VERSION,
     description="Doggy Backend API with Firebase Authentication & JWT",
 )
+
+# ✅ 미들웨어 등록
+app.add_middleware(LoggingMiddleware)
+app.add_middleware(AuthMiddleware)
+
 
 # ✅ CORS 설정 추가 (Next.js 개발 환경 허용)
 app.add_middleware(
