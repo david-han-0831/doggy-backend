@@ -8,6 +8,7 @@ from app.db.models.user import User
 from app.db.models.refresh_tokens import RefreshToken
 from pydantic import BaseModel
 from app.utils.response_utils import success_response, error_response
+from app.utils.security import verify_jwt_token
 
 
 router = APIRouter()
@@ -124,3 +125,38 @@ async def logout(request: Request, db: Session = Depends(get_db)):
     # 클라이언트 쿠키에서 refresh token 삭제
     response.delete_cookie("refresh_token")
     return response
+
+@router.get("/me")
+async def get_user_info(request: Request, db: Session = Depends(get_db)):
+    """
+    현재 로그인한 사용자의 정보를 반환하는 엔드포인트.
+    
+    클라이언트는 Authorization 헤더에 Bearer 토큰을 포함하여 요청해야 합니다.
+    해당 토큰을 검증한 후, 데이터베이스에서 사용자 정보를 조회하여 반환합니다.
+    """
+    print(f'request: {request}')
+    # Authorization 헤더에서 토큰 추출
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Unauthorized: Missing token")
+    
+    token = auth_header.split("Bearer ")[1]
+    
+    # JWT 토큰 검증 (유효하지 않거나 만료된 경우 HTTPException 발생)
+    payload = verify_jwt_token(token)
+    
+    # 데이터베이스에서 firebase_uid를 기준으로 사용자 조회
+    user = db.query(User).filter(User.firebase_uid == payload["uid"]).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # 반환할 사용자 정보를 구성 (민감한 정보는 제외)
+    user_info = {
+        "uid": user.firebase_uid,
+        "display_name": user.email,
+        "email": user.email,
+        "role": user.role,
+        "created_at": user.created_at.isoformat() if user.created_at else None,
+    }
+    print(f'user_info: {user_info}')
+    return success_response(data=user_info, msg="사용자 정보 조회 성공")

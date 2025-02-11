@@ -6,6 +6,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         """ JWT 인증 미들웨어 """
         
+        is_development = False
+        
         # 인증 없이 접근 허용할 경로들을 화이트리스트로 지정합니다.
         whitelist = [
             "/api/v1/auth/login",  # 로그인 엔드포인트
@@ -14,6 +16,11 @@ class AuthMiddleware(BaseHTTPMiddleware):
             "/openapi.json",       # OpenAPI 스펙
             "/favicon.ico",        # 파비콘
         ]
+        
+        if is_development:
+            whitelist.extend([
+                "/api/v1/",
+            ])
         
         # 현재 요청 경로가 whitelist에 해당하면 토큰 검사를 건너뜁니다.
         if any(request.url.path.startswith(path) for path in whitelist):
